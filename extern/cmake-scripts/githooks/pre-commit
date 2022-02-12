@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+echo "Calling pre-commit hook"
+exitcodes=()
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+for hook in "$DIR"/pre-commit-*; do
+  echo "$hook"
+  test -x "$hook" || continue
+  out=`"$hook" "$@"`
+  exitcodes+=($?)
+  echo "$out"
+done
+
+# If any exit code isn't 0, bail.s
+for i in "${exitcodes[@]}"; do
+  [ "$i" == 0 ] || exit $i
+done

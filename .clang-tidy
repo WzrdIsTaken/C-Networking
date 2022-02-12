@@ -1,0 +1,77 @@
+#FOR LLP - YEAR 2 STUDENTS. NOT SUITABLE FOR YEAR 1
+Checks:            '*,readability-identifier-naming,
+                    -android-*,-fuchsia-*,-google-*,-llvm-*,-objc-*,-zircon-*,-abseil-*,-altera-*,
+                    -clang-analyzer-alpha.*,-modernize-use-trailing-return-type,
+                    -hicpp-special-member-functions, -readability-redundant-access-specifiers,
+                    -cppcoreguidelines-avoid-magic-numbers, -cppcoreguidelines-pro-bounds-pointer-arithmetic,
+                    -readability-convert-member-functions-to-static,-cppcoreguidelines-pro-bounds-constant-array-index,
+                    -cppcoreguidelines-owning-memory, -hicpp-signed-bitwise, llvm-namespace-comment,
+                    -misc-non-private-member-variables-in-classes, -cppcoreguidelines-non-private-member-variables-in-classes,
+                    -cppcoreguidelines-pro-type-reinterpret-cast, -readability-magic-numbers, -llvmlibc-*,
+                    -clang-diagnostic-double-promotion, -cppcoreguidelines-pro-bounds-array-to-pointer-decay, 
+                    -hicpp-no-array-decay'
+
+WarningsAsErrors:  '*,
+                    -misc-unused-parameters,
+                    -cppcoreguidelines-pro-bounds-constant-array-index,
+                    -clang-analyzer-deadcode.DeadStores,
+                    -modernize-avoid-bind,
+                    -cppcoreguidelines-avoid-non-const-global-variables'
+
+
+#HeaderFilterRegex: '^.*(gamelib|app).*(.hpp|.h)'
+AnalyzeTemporaryDtors: true
+FormatStyle:     file
+User:            lintbot
+CheckOptions:
+  - { key: cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor,      value: '1'         }
+  - { key: cppcoreguidelines-special-member-functions.AllowMissingMoveFunctions, value: '1'         }
+  - { key: llvm-namespace-comment.ShortNamespaceLines,                           value: '10'        }
+  - { key: llvm-namespace-comment.SpacesBeforeComments,                          value: '2'         }
+  - { key: performance-unnecessary-value-param.AllowedTypes,                     value: 'SharedEventData'  }
+  - { key: readability-braces-around-statements.ShortStatementLines,             value: '0'         }
+  - { key: readability-function-size.BranchThreshold,                            value: '15'        }
+  - { key: readability-function-size.LineThreshold,                              value: '500'       }
+  - { key: readability-function-size.NestingThreshold,                           value: '6'         }
+  - { key: readability-function-size.ParameterThreshold,                         value: '10'        }
+  - { key: readability-function-size.StatementThreshold,                         value: '250'       }
+  - { key: readability-identifier-naming.AbstractClassCase,                      value: CamelCase   }
+  - { key: readability-identifier-naming.ClassCase,                              value: CamelCase   }
+  - { key: readability-identifier-naming.ClassConstantCase,                      value: UPPER_CASE  }
+  - { key: readability-identifier-naming.ClassMemberCase,                        value: lower_case  }
+  - { key: readability-identifier-naming.ClassMethodCase,                        value: camelBack   }
+  - { key: readability-identifier-naming.ConstantCase,                           value: UPPER_CASE  }
+  - { key: readability-identifier-naming.ConstantMemberCase,                     value: UPPER_CASE  }
+  - { key: readability-identifier-naming.ConstantParameterCase,                  value: lower_case  }
+  - { key: readability-identifier-naming.EnumCase,                               value: CamelCase   }
+  - { key: readability-identifier-naming.NamespaceCase,                          value: aNy_CasE    }
+  - { key: readability-identifier-naming.StructCase,                             value: CamelCase   }
+  - { key: readability-identifier-naming.FunctionCase,                           value: camelBack   }
+  - { key: readability-identifier-naming.VariableCase,                           value: lower_case  }
+  - { key: readability-identifier-naming.GlobalConstantCase,                     value: UPPER_CASE  }
+  - { key: modernize-use-nullptr.NullMacros,                                     value: "NULL"      }
+
+  - key:    misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic
+    value:  '1'
+
+# CHANGELOG
+# DISABLED
+# -hicpp-special-member-functions: CREATING A NON-DEFAULT DESTRUCTOR DOES NOT MEAN A CLASS NEEDS CUSTOM EVERYTHING
+# -readability-redundant-access-specifiers: ALLOW MULTIPLE USE OF PUBLIC/PRIVATE IN HEADERS
+# -cppcoreguidelines-avoid-magic-numbers: DUPLICATE OF READABILITY
+#  misc-non-private-member-variables-in-classes; IGNORE ALL PUBLIC DATA CLASSES
+# -cppcoreguidelines-owning-memory: ITS OKAY TO USE RAW POINTERS IMHO
+# -cppcoreguidelines-pro-bounds-constant-array-index: GSL::AT?? REALLY?
+# -hicpp-signed-bitwise: IGNORE THE SIGNED BITMAPPING ERRORS. THIS IS AN ANNOYING INTERPRETATION OF HIC++ STANDARD
+# -cppcoreguidelines-non-private-member-variables-in-classes: ALLOW PROTECTED MEMBERS
+# -llvmlibc-*: IGNORE VERY NOISY WARNINGS AND BIZARRE WARNINGS
+# -abseil-*: IGNORE THESE CHECKS FOR ADDITIONAL LIBRARY USAGE
+# -clang-diagnostic-double-promotion: USEFUL WHEN LARGER TYPES REQUIRE SOFTWARE EMULATION
+# -hicpp-no-array-decay: SPAN<T> IS GOOD IN ALL, BUT THEY'RE STILL LEARNING
+# -cppcoreguidelines-pro-bounds-array-to-pointer-decay: SPAN<T> IS GOOD.. C++20 THOUGH!!!
+# WARNING ONLY
+# -readability-magic-numbers: SHOULDN'T USE THEM, BUT LETS NOT CRY OVER IT TOO BADLY
+# -misc-unused-parameters: YEAH, BUT HERE WE ARE!
+# -readability-magic-numbers: MAGIC NUMBERS ARE BAD, BUT JEEZ THE STUDENTS DON'T CARE AND ITS NOISY
+# -modernize-avoid-bind: VALID BUT LET STUDENTS USE BIND FOR NOW
+# -cppcoreguidelines-avoid-non-const-global-variables: CAUSES RACE CONDITIONS. USE FUNCTION THAT RETURNS STATIC INSTEAD

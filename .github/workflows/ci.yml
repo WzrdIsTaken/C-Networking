@@ -1,0 +1,92 @@
+name: CI Checks
+
+on: [push]
+
+env:
+  NINJA_VERSION: 1.9.0
+  BUILD_TYPE: Debug
+  CC: "clang-13"
+  CXX: "clang++-13"
+
+jobs:
+  cppcheck:
+    name: cppcheck
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: recursive
+      - id: setup
+        uses: UWEGames-GiC2/ci-setup@v1.1
+        with:
+          build-type: '${BUILD_TYPE}'
+      - name: Running Cppcheck
+        shell: bash
+        run: |
+          /usr/bin/cppcheck --quiet --platform=unix64 \
+            --project=build/compile_commands.json --cppcheck-build-dir=build/cppcheck \
+            --enable=warning,style,performance,portability \
+            --template='{file}:{line}: {severity}: {id}:{message}\n{code}' \
+            --template-location='{file}:{line}: note: {info}\n{code}' \
+            --error-exitcode=1 --force --inline-suppr --suppressions-list=.cppcheck \
+            --std=c++20 --language=c++ -i_deps -iCMakeFiles -ibuild
+
+  clangformat:
+    name: clangformat
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: recursive
+      - id: setup
+        uses: UWEGames-GiC2/ci-setup@v1.1
+        with:
+          build-type: '${BUILD_TYPE}'
+      - name: Downloading clang-Format.py
+        shell: bash
+        run: |
+          echo
+          echo "###################################################################"
+          echo "################### Download run_clang_format.py ##################"
+          echo "###################################################################"
+          wget https://raw.githubusercontent.com/Sarcasm/run-clang-format/master/run-clang-format.py
+          chmod +x run-clang-format.py
+      - name: Checking code formating
+        shell: bash
+        run: |
+          ./run-clang-format.py --clang-format-executable /usr/bin/clang-format-13 -r \
+             app app/ASGEGame app/ASGEServer include include/ASGEGameLib src
+
+  clangtidy:
+    name: clangtidy
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: recursive
+      - id: setup
+        uses: UWEGames-GiC2/ci-setup@v1.1
+        with:
+          build-type: '${BUILD_TYPE}'
+      - name: Running static analysis
+        shell: bash
+        run: cmake --build build --config ${BUILD_TYPE} --target ClangTidy
+
+  build:
+    name: build
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+          submodules: recursive
+      - id: setup
+        uses: UWEGames-GiC2/ci-setup@v1.1
+        with:
+          build-type: '${BUILD_TYPE}'
+      - name: Build
+        shell: bash
+        run: cmake --build build --config ${BUILD_TYPE}

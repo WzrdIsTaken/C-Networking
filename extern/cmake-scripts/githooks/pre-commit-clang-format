@@ -1,0 +1,135 @@
+#!/bin/bash
+echo "executing pre-commit"
+
+# CHANGELOG
+# 2.02: Fixed OSX shell issues when printing text
+# 2.04: Exclude external instead of Libs
+# 2.05: Script now exits 0 when clang-format is not found
+# 2.06: Keep formatting files until no errors are found
+# 2.07: Auto commit changes instead of re-staging
+
+# TODO
+# IMPLEMENT AN EXCLUDE LIST
+
+## FILE EXTENSIONS TO CHECK
+FILE_EXTS="cu,c,h,cpp,hpp,cc,hh,cxx,js"
+
+## COLOR DEFINES
+if [[ "$OSTYPE" != "darwin"* ]]; then
+  BLUE='\033[1;34m'
+  PURPLE='\033[1;35m'
+  GREEN='\033[1;32m'
+  RED='\033[1;31m'
+  YELLOW='\033[1;33m'
+  NC='\033[0m' # No Color
+fi
+
+## PRINT HELPER
+TAG="[CT]: "
+print()
+{
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    first=`echo $1|cut -c1|tr [a-z [A-Z]`
+    second=`echo $1|cut -c2-`
+    echo $first$second
+  else
+    echo -e ${TAG} "${1^}"
+  fi
+}
+
+IFS=$'\n'
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+   against=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    against=$(git hash-object -t tree /dev/null)
+fi
+
+files=`git diff --cached --name-only --diff-filter=ACMRT $against -- *.{cu,c,h,cpp,hpp,cc,hh,cxx,js} ':!/external/*'`
+
+if [ -z "$files" ]; then
+  print "Nothing to see here, move along!"
+  exit 0
+fi
+
+echo "
+ _______  _______  ______   _______        __________________ ______
+(  ____ \(  ___  )(  __  \ (  ____ \       \__   __/\__   __/(  __  \ |\     /|
+| (    \/| (   ) || (  \  )| (    \/          ) (      ) (   | (  \  )( \   / )
+| |      | |   | || |   ) || (__     _____    | |      | |   | |   ) | \ (_) /
+| |      | |   | || |   | ||  __)   (_____)   | |      | |   | |   | |  \   /
+| |      | |   | || |   ) || (                | |      | |   | |   ) |   ) (
+| (____/\| (___) || (__/  )| (____/\          | |   ___) (___| (__/  )   | |
+(_______/(_______)(______/ (_______/          )_(   \_______/(______/    \_/
+
+                                                                         v2.07
+                                                         James Huxtable (2021)"
+function python_check()
+{
+  print "Looking for ${PURPLE}python executable${NC}"
+  if ! command -v python3 &> /dev/null
+    then
+      print "${YELLOW}Warning: Python could not be located${NC}"
+      return 1;
+  else
+      print "python located: ${BLUE}`python3 -c 'import sys; print(".".join(map(str, sys.version_info[:3])))'`${NC}"
+      return 0;
+  fi
+}
+
+if [[ `git config hooks.clangFormatExe` ]];
+  then
+   exe=(`git config hooks.clangFormatExe`)
+
+   if ! command -v ${exe} &>/dev/null;
+     then
+      print "${RED}error: provided clang-format executable does not exist ${NC}"
+      exe=""
+   fi
+fi
+
+if [[ -z "$exe" ]];
+  then
+   print "Searching for ${PURPLE}clang-format executable ${NC}"
+   if command -v clang-format &>/dev/null;
+     then
+      exe=(clang-format)
+      print "Found clang-format executable:${BLUE} ${exe} ${NC}"
+   else
+      print "Error: clang-format could not be located"
+      exit 0
+   fi
+fi
+
+print "Performing code style checks"
+#python_check
+if [[ "$exe" ]];
+  then
+    while read -r file; do
+      print "${YELLOW}Scanning: ${file}${NC}"
+      while ! ${exe} --Werror --dry-run -style=file -i "${file}" > /dev/null 2>&1; do
+        ${exe} -style=file -i "${file}"
+      done
+    done <<< "$files"
+
+    print "Checking Diffs"
+    git -c color.diff=always diff --exit-code -u ${files}
+    if [ $? -ne 0 ]; then
+      print "${RED}Code style issues were present and have been fixed.${NC}"
+      git add ${files}
+      print "${YELLOW}Restaged changed files!!!${NC}"
+      #print "${RED}You will need to re-commit after ensuring your build still works.${NC}"
+      #print "${GREEN}Commit Ab0rted!${NC}"
+    fi
+fi
+
+print "${GREEN}d0ne!${NC}"
+
+echo "
+ {\__/}
+ (●_●)
+ ( >🌮
+"
+
+exit 0
