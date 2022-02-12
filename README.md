@@ -1,40 +1,8 @@
-# Assignment 
+# TCP Network Game created in C++ with ASGE and the Kissnet library
 
-Please refer to Blackboard for full details on the assignment and its 
-deliverables.
+<img src="screenshots/gameplay.png" width=640 height=360>
 
-Project Layout
-------
-* app
-  * ASGEGame: the game client and OpenGL Window
-    * data: used for assets and game deployment
-    * resources: used for icons 
-  * Server: the dedicated server i.e. no window
-    * data: used for server assets
-    
-* extern
-  * important build scripts and other submodules
-  * to manually update the submodules
-    * `git pull --recurse-submodules`
-    * `git submodule update --init --remote --recursive`
-  
-* include:
-  * ASGEGameLib: public header files belonging to your game library and needed by your apps
+A small multiplayer game made for the year two module More Games in C++. Includes my custom wrapper built around the ASGE engine! <br>
 
-* src 
-  * ASGEGameLib/
-  * **reusable game components go here i.e. dice, animated sprite, game panel, game state  etc** 
-  * Private hpp files go here also i.e. not used by your apps
-   
-   
-Static Analysis
-------
-If you want to resolve issues that GitHub builds have flagged, you can turn
-on the live analysis. This will scan each file as it compiles it. Just don't
-forget to turn it off when you're finished.
-
-GameData
-------
-In order to access your game data from the game, you need to ensure that the +GD 
-target has been run. You only need to run this when you've modified the contents
-of your Data folder.
+Gameplay Video: https://youtu.be/i5RK8R9Vjr0 &nbsp;- See the game in action!<br>
+Deep Dive Video: https://youtu.be/C_-GhLI7oos - My thought process behind the code
